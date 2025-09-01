@@ -9,7 +9,7 @@ const usersRoutes = Router();
 // Instancia o controller de usuários, para manipular as requisições.
 const usersController = new UsersController();
 
-// Define a rota GET "/" que chama o método create do UsersController.
-usersRoutes.get("/", usersController.create);
+// Define a rota POST "/" que chama o método create do UsersController.
+usersRoutes.post("/", usersController.create);
 
 export { usersRoutes };

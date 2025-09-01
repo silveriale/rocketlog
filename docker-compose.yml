@@ -4,15 +4,15 @@ services:
   # Define o serviço do banco de dados PostgreSQL.
   postgres:
     # Usa a imagem oficial do PostgreSQL do Docker Hub.
-    image: "bitname/postgresql:latest"
+    image: "bitnami/postgresql:latest"
     # Mapeia a porta 5432 do container para a 5432 da máquina local.
     ports:
       - "5432:5432"
     # Define as variáveis de ambiente para configurar o banco.
-    enviroment:
+    environment:
       # Usuário do banco de dados.
       POSTGRES_USER: postgres
       # Senha do banco de dados.
       POSTGRES_PASSWORD: postgres
       # Nome do banco de dados a ser criado automaticamente.
-      POSTGRES_DB: rockerlog
+      POSTGRES_DB: rocketlog

@@ -1,8 +1,74 @@
+// Este arquivo define o schema do Prisma, descrevendo as models e enums que representam as tabelas do banco de dados, além da configuração do client e datasource.
+
 generator client {
+  // Define o gerador de client do Prisma.
   provider = "prisma-client-js"
 }
 
 datasource db {
+  // Define o provedor de banco de dados, neste caso PostgreSQL.
   provider = "postgresql"
+  // A URL de conexão é lida da variável de ambiente DATABASE_URL.
   url      = env("DATABASE_URL")
+}
+
+// Enum que representa os papéis de usuário no sistema.
+enum UserRole {
+  customer   // Usuário cliente
+  sale       // Usuário responsável por vendas
+}
+
+// Enum que representa os status de entrega.
+enum DeliveryStatus {
+  processing  // Entrega em processamento
+  shipped     // Entrega enviada
+  delivered   // Entrega concluída
+}
+
+// Model que representa a tabela "users".
+model User {
+  id String @id @default(uuid())   // Identificador único gerado como UUID
+  name String                     // Nome do usuário
+  email String                    // Email do usuário
+  password String                 // Senha do usuário
+
+  role UserRole @default(customer) // Papel do usuário, padrão = customer
+
+  deliveries Delivery[]           // Relacionamento 1-N com Deliveries
+
+  createdAt DateTime @default(now()) @map("created_at")  // Data de criação (mapeada para "created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")       // Data de atualização (mapeada para "updated_at")
+
+  @@map ("users")                 // Nome da tabela no banco = "users"
+}
+
+// Model que representa a tabela "deliveries".
+model Delivery {
+  id String @id @default(uuid())   // Identificador único
+  userId String @map("user_id")    // Chave estrangeira para o usuário (mapeada para "user_id")
+  description String               // Descrição da entrega
+
+  status DeliveryStatus @default(processing)  // Status da entrega, padrão = processing
+
+  user User @relation(fields: [userId], references: [id]) // Relacionamento com a tabela User
+  logs DeliveryLog[]                                     // Relacionamento 1-N com logs
+
+  createdAt DateTime @default(now()) @map("created_at")   // Data de criação (mapeada para "created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")        // Data de atualização (mapeada para "updated_at")
+
+  @@map("deliveries")             // Nome da tabela = "deliveries"
+}
+
+// Model que representa a tabela "delivery_logs".
+model DeliveryLog {
+  id String @id @default(uuid())   // Identificador único
+  description String               // Descrição do log
+  deliveryId String @map("delivery_id") // Chave estrangeira para a entrega (mapeada para "delivery_id")
+
+  delivery Delivery @relation(fields: [deliveryId], references: [id]) // Relacionamento com Delivery
+
+  createdAt DateTime @default(now()) @map("created_at")  // Data de criação (mapeada para "created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")       // Data de atualização (mapeada para "updated_at")
+
+  @@map("delivery_logs")          // Nome da tabela = "delivery_logs"
 }

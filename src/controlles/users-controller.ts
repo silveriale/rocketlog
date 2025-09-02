@@ -35,8 +35,8 @@ class UsersController {
     // Cria o usuário no banco de dados com os dados validados e a senha já criptografada.
     const user = await prisma.user.create({
       data: {
-        name,               // Nome do usuário (string validada pelo Zod)
-        email,              // Email único do usuário (string validada pelo Zod)
+        name, // Nome do usuário (string validada pelo Zod)
+        email, // Email único do usuário (string validada pelo Zod)
         password: hashedPassword, // Hash da senha gerado pelo bcrypt com salt 8
       },
     });
@@ -44,8 +44,8 @@ class UsersController {
     // Remove o campo `password` do objeto retornado pelo Prisma, mantendo o restante em `userWithoutPassword`.
     const { password: _, ...userWithoutPassword } = user;
 
-    // Retorna 200 (padrão) com o usuário criado SEM o campo de senha.
-    return response.json(userWithoutPassword);
+    // Retorna 201 com o usuário criado SEM o campo de senha.
+    return response.status(201).json(userWithoutPassword);
   }
 }
 

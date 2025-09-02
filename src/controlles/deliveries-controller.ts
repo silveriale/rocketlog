@@ -1,4 +1,4 @@
-// Este arquivo define o controlador que concentra os métodos relacionados às operações de entregas.
+// Este arquivo define o controlador que concentra os métodos relacionados à criação e listagem de entregas.
 
 import { Request, Response } from "express";
 import { prisma } from "@/database/prisma";
@@ -30,8 +30,12 @@ class DeliveriesController {
 
   // Método responsável por listar todas as entregas
   async index(request: Request, response: Response) {
-    // Busca todas as entregas no banco de dados
-    const deliveries = await prisma.delivery.findMany();
+    // Busca todas as entregas no banco de dados, incluindo informações básicas do usuário associado (nome e email)
+    const deliveries = await prisma.delivery.findMany({
+      include: {
+        user: { select: { name: true, email: true } },
+      },
+    });
 
     // Retorna a lista de entregas em formato JSON
     return response.json(deliveries);

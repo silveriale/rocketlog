@@ -48,3 +48,5 @@ function ensureAuthenticated(
     throw new AppError("JWT token inválido!", 401);
   }
 }
+
+export { ensureAuthenticated };

@@ -2,7 +2,9 @@
 
 import { Request, Response } from "express";
 import { AppError } from "@/utils/AppError";
+import { authConfig } from "@/configs/auth";
 import { prisma } from "@/database/prisma";
+import { sign } from "jsonwebtoken";
 import { compare } from "bcrypt";
 import { z } from "zod";
 
@@ -33,9 +35,18 @@ class SessionsController {
       throw new AppError("Email ou senha inválida!", 401);
     }
 
-    // Retorna uma resposta temporária de sucesso (deve ser substituída por token JWT ou dados da sessão futuramente)
-    return response.json({ message: "ok" });
+    // Obtém o segredo e o tempo de expiração para o token JWT a partir das configurações de autenticação
+    const { secret, expiresIn } = authConfig.jwt;
+
+    // Gera o token JWT com informações do usuário, incluindo seu papel, identificador e tempo de expiração
+    const token = sign({ role: user.role ?? "customer" }, secret, {
+      subject: user.id,
+      expiresIn,
+    });
+
+    // Retorna o token JWT para o cliente, permitindo autenticação nas requisições subsequentes
+    return response.json({ token });
   }
 }
 
-export { SessionsController }; 
+export { SessionsController };

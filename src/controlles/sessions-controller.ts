@@ -9,6 +9,7 @@ import { compare } from "bcrypt";
 import { z } from "zod";
 
 class SessionsController {
+  // Método responsável por autenticar um usuário com email e senha
   async create(request: Request, response: Response) {
     // Validação do corpo da requisição: garante que o email e a senha estejam no formato correto
     const bodySchema = z.object({
@@ -38,14 +39,17 @@ class SessionsController {
     // Obtém o segredo e o tempo de expiração para o token JWT a partir das configurações de autenticação
     const { secret, expiresIn } = authConfig.jwt;
 
-    // Gera o token JWT com informações do usuário, incluindo seu papel, identificador e tempo de expiração
+    // Gera o token JWT incluindo o papel do usuário (role), assinado com o segredo e tempo de expiração definidos
     const token = sign({ role: user.role ?? "customer" }, secret, {
       subject: user.id,
       expiresIn,
     });
 
-    // Retorna o token JWT para o cliente, permitindo autenticação nas requisições subsequentes
-    return response.json({ token });
+    // Remove a senha do objeto usuário antes de retornar os dados
+    const { password: hashedPassword, ...userWithoutPassword } = user;
+
+    // Retorna o token JWT junto com os dados do usuário (sem a senha)
+    return response.json({ token, user: userWithoutPassword });
   }
 }
 

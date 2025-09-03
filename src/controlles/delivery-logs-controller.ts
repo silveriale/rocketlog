@@ -52,12 +52,16 @@ class DeliveryLogsController {
     // Faz o parsing e validação dos parâmetros recebidos
     const { delivery_id } = paramsSchema.parse(request.params);
 
-    // Busca a entrega no banco de dados pelo ID fornecido
+    // Busca a entrega no banco de dados pelo ID fornecido, incluindo os logs e o usuário associado
     const delivery = await prisma.delivery.findUnique({
       where: { id: delivery_id },
+      include: {
+        logs: true,
+        user: true,
+      },
     });
 
-    // Se o usuário for um cliente, só pode visualizar seus próprios pedidos; caso contrário, lança um erro de autorização
+    // Verifica se o usuário é um cliente e se está tentando acessar uma entrega que não pertence a ele; caso afirmativo, lança um erro de autorização
     if (
       request.user?.role === "customer" &&
       request.user.id !== delivery?.userId
@@ -68,7 +72,7 @@ class DeliveryLogsController {
       );
     }
 
-    // Retorna a entrega encontrada em formato JSON
+    // Retorna os dados da entrega junto com os logs e informações do usuário em formato JSON
     return response.json(delivery);
   }
 }

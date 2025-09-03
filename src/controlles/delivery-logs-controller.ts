@@ -5,7 +5,7 @@ import { AppError } from "@/utils/AppError";
 import { prisma } from "@/database/prisma";
 import { z } from "zod";
 
-// Define a classe responsável pelos logs de entrega
+// Define a classe responsável pelo gerenciamento dos logs de entrega
 class DeliveryLogsController {
   // Método assíncrono para criar um novo log de entrega
   async create(request: Request, response: Response) {
@@ -15,7 +15,8 @@ class DeliveryLogsController {
       description: z.string(),
     });
 
-    const { delivery_id, description } = bodySchema.parse(request.body); // Faz o parsing e validação do corpo da requisição conforme o esquema definido
+    // Faz o parsing e validação do corpo da requisição conforme o esquema definido
+    const { delivery_id, description } = bodySchema.parse(request.body);
 
     // Busca a entrega no banco de dados pelo ID fornecido
     const delivery = await prisma.delivery.findUnique({
@@ -25,6 +26,11 @@ class DeliveryLogsController {
     // Se a entrega não for encontrada, lança um erro 404
     if (!delivery) {
       throw new AppError("Entrega não encontrada!", 404);
+    }
+
+    // Se a entrega já estiver marcada como entregue, impede a criação de novos logs e lança um erro
+    if (delivery.status === "delivered") {
+      throw new AppError("Este pedido já foi entregue!");
     }
 
     // Se o status da entrega for "processing", impede a criação do log e lança um erro
@@ -40,7 +46,8 @@ class DeliveryLogsController {
       },
     });
 
-    return response.status(201).json(); // Retorna resposta de sucesso com status 201 (Created)
+    // Retorna resposta de sucesso com status 201 (Created), sem corpo na resposta
+    return response.status(201).json();
   }
 
   async show(request: Request, response: Response) {
@@ -52,7 +59,7 @@ class DeliveryLogsController {
     // Faz o parsing e validação dos parâmetros recebidos
     const { delivery_id } = paramsSchema.parse(request.params);
 
-    // Busca a entrega no banco de dados pelo ID fornecido, incluindo os logs e o usuário associado
+    // Busca a entrega no banco de dados pelo ID fornecido e carrega também os logs e os dados do usuário relacionados
     const delivery = await prisma.delivery.findUnique({
       where: { id: delivery_id },
       include: {

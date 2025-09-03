@@ -16,4 +16,12 @@ deliveryLogsRoutes.post(
   deliveryLogsController.create // Controller que lida com a criação do log
 );
 
+// Define a rota GET para visualizar os logs de uma entrega específica, aplicando autenticação e permitindo acesso a vendedores e clientes
+deliveryLogsRoutes.get(
+  "/:delivery_id/show", // Caminho da rota com parâmetro delivery_id
+  ensureAuthenticated, // Middleware para garantir autenticação
+  verifyUserAuthorization(["sale", "customer"]), // Middleware que permite acesso a vendedores e clientes
+  deliveryLogsController.show // Controller responsável por exibir os detalhes da entrega
+);
+
 export { deliveryLogsRoutes };

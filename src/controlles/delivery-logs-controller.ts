@@ -42,7 +42,35 @@ class DeliveryLogsController {
 
     return response.status(201).json(); // Retorna resposta de sucesso com status 201 (Created)
   }
-}
 
+  async show(request: Request, response: Response) {
+    // Define o esquema de validação para os parâmetros da requisição
+    const paramsSchema = z.object({
+      delivery_id: z.string().uuid(),
+    });
+
+    // Faz o parsing e validação dos parâmetros recebidos
+    const { delivery_id } = paramsSchema.parse(request.params);
+
+    // Busca a entrega no banco de dados pelo ID fornecido
+    const delivery = await prisma.delivery.findUnique({
+      where: { id: delivery_id },
+    });
+
+    // Se o usuário for um cliente, só pode visualizar seus próprios pedidos; caso contrário, lança um erro de autorização
+    if (
+      request.user?.role === "customer" &&
+      request.user.id !== delivery?.userId
+    ) {
+      throw new AppError(
+        "O usuário só pode visualizar seus próprios pedidos!",
+        401
+      );
+    }
+
+    // Retorna a entrega encontrada em formato JSON
+    return response.json(delivery);
+  }
+}
 
 export { DeliveryLogsController };

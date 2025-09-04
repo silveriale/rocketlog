@@ -28,4 +28,17 @@ describe("UsersController", () => {
     // Armazena o ID do usuário criado para ser usado posteriormente na limpeza
     user_id = response.body.id;
   });
+
+  // Define um caso de teste que valida a falha ao tentar criar um usuário com email já existente
+  it("Deve lançar um erro se o usuário com o mesmo email já existir", async () => {
+    const response = await request(app).post("/users").send({
+      name: "Duplicate User",
+      email: "testuser@example.com",
+      password: "password123",
+    });
+
+    expect(response.status).toBe(400); // Verifica se o status da resposta é 400 (Bad Request)
+    expect(response.body.message).toBe("Email já cadastrado por outro usuário!"); // Verifica se a mensagem de erro retornada corresponde ao esperado
+    
+  });
 });

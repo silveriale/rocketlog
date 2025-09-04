@@ -1,4 +1,4 @@
-// Testes de integração do UsersController, validando a criação e limpeza de usuários no banco
+// Testes de integração do UsersController: criação de usuários, validações e tratamento de erros
 
 import request from "supertest";
 import { prisma } from "@/database/prisma";
@@ -8,7 +8,7 @@ import { app } from "@/app";
 describe("UsersController", () => {
   let user_id: string;
 
-  // Remove o usuário de teste criado após a execução dos testes para não deixar resíduos no banco
+  // Remove o usuário de teste após a execução dos testes para limpar o banco
   afterAll(async () => {
     await prisma.user.delete({ where: { id: user_id } });
   });
@@ -38,7 +38,19 @@ describe("UsersController", () => {
     });
 
     expect(response.status).toBe(400); // Verifica se o status da resposta é 400 (Bad Request)
-    expect(response.body.message).toBe("Email já cadastrado por outro usuário!"); // Verifica se a mensagem de erro retornada corresponde ao esperado
-    
+    expect(response.body.message).toBe(
+      "Email já cadastrado por outro usuário!"
+    );
+  });
+  
+  // Verifica se a mensagem de erro retornada corresponde ao esperado
+  it("Deve lançar um erro de validação se o email for inválido", async () => {
+    const response = await request(app).post("/users").send({
+      name: "Test User",
+      email: "invalid-email",
+      password: "password123",
+    });
+    expect(response.status).toBe(400); // Verifica se o status da resposta é 400 (Bad Request) devido ao email inválido
+    expect(response.body.message).toBe("validation error"); // Verifica se a mensagem de erro retornada corresponde ao erro de validação esperado
   });
 });

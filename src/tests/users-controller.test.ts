@@ -1,9 +1,17 @@
-// Arquivo de testes de integração para o UsersController, validando a criação de usuários via rota /users
+// Testes de integração do UsersController, validando a criação e limpeza de usuários no banco
 
 import request from "supertest";
+import { prisma } from "@/database/prisma";
 import { app } from "@/app";
+
 // Inicia um bloco de testes para o UsersController
 describe("UsersController", () => {
+  let user_id: string;
+
+  // Remove o usuário de teste criado após a execução dos testes para não deixar resíduos no banco
+  afterAll(async () => {
+    await prisma.user.delete({ where: { id: user_id } });
+  });
   // Define um caso de teste que valida a criação de um usuário com sucesso
   it("Deve criar um novo usuário com sucesso", async () => {
     // Envia uma requisição POST para a rota /users com os dados do usuário de teste
@@ -16,5 +24,8 @@ describe("UsersController", () => {
     expect(response.status).toBe(201); // Verifica se o status da resposta é 201 (Created)
     expect(response.body).toHaveProperty("id"); // Verifica se o corpo da resposta possui a propriedade "id"
     expect(response.body.name).toBe("Test User"); // Verifica se o nome retornado é igual ao enviado
+
+    // Armazena o ID do usuário criado para ser usado posteriormente na limpeza
+    user_id = response.body.id;
   });
 });

@@ -1,4 +1,4 @@
-// Este arquivo define um controller responsável por atualizar o status de uma entrega no banco de dados
+// Controller responsável por atualizar o status de uma entrega e registrar o log dessa atualização no banco de dados
 
 import { Request, Response } from "express";
 import { prisma } from "@/database/prisma";
@@ -32,7 +32,14 @@ class DeliveriesStatusController {
       },
     });
 
-    // Retorna uma resposta JSON vazia indicando sucesso
+    // Cria um registro no log de entregas com a mudança de status
+    await prisma.deliveryLog.create({
+      data: {
+        deliveryId: id,
+        description: status,
+      },
+    });
+
     return response.json();
   }
 }

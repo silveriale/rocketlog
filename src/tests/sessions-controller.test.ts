@@ -1,12 +1,18 @@
-// Arquivo de testes de integração para autenticação de usuários no SessionsController
+// Testes de integração do SessionsController: autenticação de usuários e geração de token
 
 import request from "supertest";
+import { prisma } from "@/database/prisma";
 import { app } from "@/app";
 
 // Inicia um bloco de testes para o SessionsController
 describe("SessionsControler", () => {
   // Declara uma variável para armazenar o ID do usuário criado durante o teste
   let user_id: string;
+
+  // Remove o usuário de teste criado após a execução dos testes para não deixar resíduos no banco
+  afterAll(async () => {
+    await prisma.user.delete({ where: { id: user_id } });
+  });
 
   // Define um caso de teste que valida a autenticação e o retorno de um token de acesso
   it("Deve autenticar e obter token de acesso", async () => {
@@ -17,7 +23,7 @@ describe("SessionsControler", () => {
       password: "password123", // Senha do usuário de teste
     });
 
-    user_id = userResponse.body.id; // Armazena o ID do usuário criado para referência futura
+    user_id = userResponse.body.id; // Armazena o ID do usuário criado para permitir exclusão no afterAll
 
     // Realiza o login do usuário criado enviando email e senha para a rota /sessions
     const sessionResponse = await request(app).post("/sessions").send({

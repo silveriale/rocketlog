@@ -68,6 +68,11 @@ class DeliveryLogsController {
       },
     });
 
+    // Caso a entrega não seja encontrada no banco de dados, retorna uma resposta JSON com status 404 e mensagem personalizada
+    if (!delivery) {
+      return response.status(404).json({ message: "Entrega não encontrada!" });
+    }
+
     // Verifica se o usuário é um cliente e se está tentando acessar uma entrega que não pertence a ele; caso afirmativo, lança um erro de autorização
     if (
       request.user?.role === "customer" &&

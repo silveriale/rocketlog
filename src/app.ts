@@ -1,7 +1,6 @@
 // Este arquivo configura a aplicação Express, registrando middlewares e rotas.
 
 import express from "express";
-import "express-async-errors";
 import { routes } from "./routes";
 import { errorHandling } from "./middlewares/error-handling";
 

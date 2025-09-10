@@ -1,13 +1,20 @@
 // Define as configurações de autenticação da aplicação, em especial os parâmetros do JWT.
 
 import { env } from "../env";
+import type { SignOptions } from "jsonwebtoken";
 
-export const authConfig = {
+// Define a tipagem do JWT para alinhar com o pacote jsonwebtoken, garantindo que expiresIn seja aceito corretamente pelo TypeScript
+type JWTConfig = {
+  secret: string;
+  expiresIn: SignOptions["expiresIn"]; // mantém o tipo alinhado com a biblioteca jsonwebtoken
+};
+
+export const authConfig: { jwt: JWTConfig } = {
   // Configurações relacionadas ao JWT (JSON Web Token)
   jwt: {
-    // Segredo utilizado para assinar e verificar o token JWT, obtido do arquivo env.ts centralizado e deve ser definido nas variáveis de ambiente
+    // Segredo utilizado para assinar e verificar o token JWT. Obtido do env.ts e deve estar definido nas variáveis de ambiente.
     secret: env.JWT_SECRET,
-    // Define quanto tempo o token JWT será válido antes de expirar, neste caso 1 dia
-    expiresIn: "1d",
+    // Tempo de expiração do token JWT. Tipado como literal ("1d" as const) para evitar erros de sobrecarga no TypeScript.
+    expiresIn: "1d" as const,
   },
 };

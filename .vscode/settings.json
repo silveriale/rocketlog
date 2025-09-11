@@ -1,0 +1,12 @@
+// Arquivo de configurações locais do VS Code para este projeto, aqui você pode definir ajustes que valem só dentro desta pasta, como schemas de JSON, formatação, lint, etc.
+
+{
+  // Início do objeto de configurações do VS Code
+  "json.schemas": [
+    // Define uma lista de schemas que o VS Code vai usar para validar arquivos JSON
+    {
+      "fileMatch": ["package.json"], // Diz que este schema se aplica a qualquer arquivo chamado "package.json"
+      "url": "https://json.schemastore.org/package" // Endereço do schema oficial do package.json (JSON Schema Store)
+    }
+  ]
+}
